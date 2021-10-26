@@ -3,7 +3,7 @@ package com.yxl.excise.protocol;
 import com.yxl.excise.message.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageCodec;
+import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
@@ -13,9 +13,10 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 @Slf4j
-public class MessageCodec extends ByteToMessageCodec<Message> {
+public class SharedMessageCodec extends MessageToMessageCodec<ByteBuf,Message> {
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, Message message, ByteBuf byteBuf) throws Exception {
+    protected void encode(ChannelHandlerContext channelHandlerContext, Message message, List<Object> list) throws Exception {
+        ByteBuf byteBuf = channelHandlerContext.alloc().buffer();
         //1. 4字节的魔数
         byteBuf.writeBytes(new byte[]{1,2,3,4});
         //2. 1字节的版本号
@@ -36,6 +37,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
         byteBuf.writeInt(bytes.length);
         //7. 正文内容
         byteBuf.writeBytes(bytes);
+        list.add(byteBuf);
     }
 
     @Override
@@ -54,6 +56,5 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
         list.add(msg);
         log.debug("{},{},{},{},{},{}",magicNum,version,serilizer,messageType,sequenceId,len);
         log.debug("{}",msg);
-
     }
 }
