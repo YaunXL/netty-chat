@@ -1,6 +1,7 @@
 package com.yxl.excise.server.session;
 
-import java.nio.channels.Channel;
+import io.netty.channel.Channel;
+
 import java.util.List;
 import java.util.Set;
 
